@@ -75,7 +75,7 @@ def parse_args():
 	# get total storage used
 	parser.add_argument("--list_storage_used_only",required=False,default=False,action=argparse.BooleanOptionalAction,help="List GPS storage used and exit if specified (default false).")
 	# delete files in list
-	parser.add_argument("--delete_selected_files",required=False,help="Delete files from GPS in list specified by this argument.")
+	parser.add_argument("--delete_selected_fit_files",required=False,help="Delete fit files from GPS in list specified by this argument. Filenames not ending with .fit or .FIT are ignored for safety (e.g., to not delete workouts.json or Setting.json).")
 	# save files
 	parser.add_argument("--save_all_files",required=False,default=True,action=argparse.BooleanOptionalAction,help="Sync all files on GPS, except for those confirmed to already have been saved (default true).")
 	# save list of all files on GPS
@@ -479,17 +479,22 @@ class BluetoothFileTransfer:
                 	print("Sent Settings.json file to GPS to change GPS settings.")
                 ##return
                 # delete selected files if argument option set
-                if (args.delete_selected_files is not None):
+                if (args.delete_selected_fit_files is not None):
                 	# print notification to stdout
-                	print("Deleting files specified in list provided as delete_selected_files command line argument.")
-                	# load delete_selected_files list and delete one by one
-                	with open(args.delete_selected_files, 'r') as file:
+                	print("Deleting files specified in list provided as  command line argument.")
+                	# load delete_selected_fit_files list and delete one by one
+                	with open(args.delete_selected_fit_files, 'r') as file:
                 		for line in file:
-                			# strip() removes the trailing newline character (\n)
-                			# indicate status
-                			print("Deleting ",line.strip())
-                			# actually delete file with above construct
-                			await self.delete_file(client, line.strip())
+                			# only delete if filename ends with .fit
+                			filename_to_delete=line.strip()
+                			if file_path.endswith(('.fit','.FIT')):
+                				# strip() removes the trailing newline character (\n)
+                				# indicate status
+                				print("Deleting ",filename_to_delete)
+                				# actually delete file with above construct
+                				await self.delete_file(client, filename_to_delete)
+                			else:
+                				print(f"{filename_to_delete} is not a .fit file so it was not deleted.")
                 			
 				
                 # The name of the list may be 'workouts.json' on new devices.
