@@ -28,6 +28,7 @@ from bleak import BleakScanner, BleakClient
 import re
 import os
 import datetime
+from datetime import datetime
 # import argparse library to add command line arguments
 import argparse
 
@@ -87,7 +88,7 @@ def parse_args():
 	# set parameters with specified JSON (e.g., Setting.json)
 	parser.add_argument("--change_settings_with_json",required=False,default=False,action=argparse.BooleanOptionalAction,help="Change GPS settings with Settings.json JSON file.")
 	# set MTU size
-	parser.add_argument("--set_mtu_size",required=False,default=517,help="Set maximum transferable unit (MTU) size (default 517).")
+	parser.add_argument("--set_mtu_size",required=False,default=247,help="Set maximum transferable unit (MTU) size (default 247).")
 	# define trace list file (e.g., workouts.json)
 	parser.add_argument("--define_trace_list_filename",required=False,default="workouts.json",help="Set name of json containing all traces/workouts (default workouts.json).")
 	# return arguments
@@ -122,7 +123,7 @@ class BluetoothFileTransfer:
 
     def create_notification_handler(self):
         async def notification_handler(sender, data):
-            ##print(data) # For test.
+            ##print(datetime.now(),":",data) # For test.
             if data == VALUE_EOT:                                               # Receive EOT.
                 self.is_download = False
                 self.notification_data = data
@@ -144,31 +145,31 @@ class BluetoothFileTransfer:
         async with BleakScanner() as scanner:
             async def lookup_device():
                 async for bd, ad in scanner.advertisement_data():
-                    print(f"Found device: {bd.name} - {bd.address}")
-                    #print(f" {bd!r} with {ad!r}")
+                    print(datetime.now(),":",f"Found device: {bd.name} - {bd.address}")
+                    #print(datetime.now(),":",f" {bd!r} with {ad!r}")
                     if target_name in (bd.name or "") or target_name in (ad.local_name or ""):
                         return bd
 
-            print("Scanning for Bluetooth devices...")
+            print(datetime.now(),":","Scanning for Bluetooth devices...")
             try:
                 device = await asyncio.wait_for(lookup_device(), timeout=90)
             except asyncio.TimeoutError:
-                print(f"Device with name {target_name} not found.")
+                print(datetime.now(),":",f"Device with name {target_name} not found.")
                 return None
-            print(f"Found target device: {device.name} - {device.address}")
+            print(datetime.now(),":",f"Found target device: {device.name} - {device.address}")
             return device
 
     async def start_notify(self, client, uuid):
         try:
             await client.start_notify(uuid, self.create_notification_handler())
         except Exception as e:
-            print(f"Failed to start notifications: {e}")
+            print(datetime.now(),":",f"Failed to start notifications: {e}")
 
     async def send_cmd(self, client, uuid, value, delay):
         try:
             await client.write_gatt_char(uuid, value, False)
         except Exception as e:
-            print(f"Failed to write value to characteristic: {e}")
+            print(datetime.now(),":",f"Failed to write value to characteristic: {e}")
         await asyncio.sleep(delay)
 
     async def get_idle_status(self, client):
@@ -183,7 +184,7 @@ class BluetoothFileTransfer:
             await self.wait_until_data(client)
             if self.notification_data == VALUE_IDLE:                              # Receive IDLE (0x04, 0x00, 0x04)
                 return True
-        print(f'Error: {self.notification_data}')
+        print(datetime.now(),":",f'Error: {self.notification_data}')
         return False
 
     async def read_block_zero(self, client):
@@ -213,9 +214,9 @@ class BluetoothFileTransfer:
             else:
                 self.data.extend(self.block_data)                                # Blocks should be combined to make a file.
                 if self.block_buf[1] == (self.block_num + 1) % 256:
-                    if self.block_error: print(f'Fixed error in block{self.block_buf[1]}.')
+                    if self.block_error: print(datetime.now(),":",f'Fixed error in block{self.block_buf[1]}.')
                 else:
-                    print(f'Unexpected block: {self.block_num} -> {self.block_buf[1]}')
+                    print(datetime.now(),":",f'Unexpected block: {self.block_num} -> {self.block_buf[1]}')
                 self.block_num = self.block_buf[1]
                 self.block_error = False
         except asyncio.TimeoutError:
@@ -247,11 +248,11 @@ class BluetoothFileTransfer:
     	# if (self.crc8_xor(self.notification_data) == 0 and 
         #    self.notification_data.startswith(OK_FILE_DELETE)):
         #    diskspace = self.notification_data[1:-1].decode('utf-8')
-        #    print(f"Successfully deleted file {filename}.")
+        #    print(datetime.now(),":",f"Successfully deleted file {filename}.")
     	if self.notification_data == self.make_command(OK_FILE_DELETE, filename):
-    		print(f"Successfully deleted file {filename}.")
+    		print(datetime.now(),":",f"Successfully deleted file {filename}.")
     	else:
-    		print(f"Failed to delete file {filename}.")
+    		print(datetime.now(),":",f"Failed to delete file {filename}.")
     	#	retries = 3
     	# await self.send_cmd(client, CTL_CHARACTERISTIC_UUID, value_ok_file_delete, 0.1)
     	# await self.wait_until_data(client)
@@ -307,7 +308,7 @@ class BluetoothFileTransfer:
             await asyncio.sleep(0.01)
             i = i + 1
             if i >= 1000:
-                print(f"Something went wrong. No new notification data.")
+                print(datetime.now(),":",f"Something went wrong. No new notification data.")
                 break
 
     async def read_diskspace(self, client):
@@ -319,7 +320,7 @@ class BluetoothFileTransfer:
         if (self.crc8_xor(self.notification_data) == 0 and 
             self.notification_data.startswith(OK_DISKSPACE)):
             diskspace = self.notification_data[1:-1].decode('utf-8')
-            print(f"Free Diskspace: {diskspace}kb")
+            print(datetime.now(),":",f"Free Diskspace: {diskspace}kb")
 
     async def time_set(self, client):
         # Set RTC on the device (32-bit uint, UTC, and 1970/1/1 epoch)
@@ -372,7 +373,7 @@ class BluetoothFileTransfer:
                 await asyncio.sleep(0.01)
                 i = i + 1
                 if i >= 1000:
-                    print(f"Something went wrong. No handshake signal.")
+                    print(datetime.now(),":",f"Something went wrong. No handshake signal.")
                     break
             return self.upload_handshake
 
@@ -392,7 +393,7 @@ class BluetoothFileTransfer:
         await self.wait_until_data(client)
         if (self.notification_data != self.make_command(OK_FILE_SEND, filename) or   # Response starts with 0x08
             await receive_handshake() != VALUE_C):                                   # Receive 'C'.
-            print("Send file not accepted.")
+            print(datetime.now(),":","Send file not accepted.")
             self.is_upload = False
             return
 
@@ -410,7 +411,7 @@ class BluetoothFileTransfer:
             elif self.upload_handshake == VALUE_C: break                              # ACK was overwritten by 'C'.
             retries -= 1
         if retries == 0:
-            print("Too many errors.")
+            print(datetime.now(),":","Too many errors.")
             self.is_upload = False
             return
 
@@ -435,13 +436,13 @@ class BluetoothFileTransfer:
                     await self.wait_until_data(client)
                     if self.crc8_xor(self.notification_data) == 0:
                         if self.notification_data.startswith(ERR_FILE_PARSE):
-                            print("Error: file parse.")
+                            print(datetime.now(),":","Error: file parse.")
                         elif self.notification_data == VALUE_IDLE:
-                            print('File transmission finished.') # A short beep from the device.
-                            print(f'File size: {self.data_size}.  Transmitted size: {self.data_read}.')
+                            print(datetime.now(),":",'File transmission finished.') # A short beep from the device.
+                            print(datetime.now(),":",f'File size: {self.data_size}.  Transmitted size: {self.data_read}.')
                         else:
-                            print(f"Unexpected response: {self.notification_data}")
-                    else: print("Error: CRC.")
+                            print(datetime.now(),":",f"Unexpected response: {self.notification_data}")
+                    else: print(datetime.now(),":","Error: CRC.")
                     break
             self.is_upload = False
 
@@ -452,36 +453,38 @@ class BluetoothFileTransfer:
 
         async with BleakClient(device.address, timeout=60.0) as client:
             if client.is_connected:
-                print(f"Connected to {device.name}")
-                ##print(f"MTU {client.mtu_size}")
+                print(datetime.now(),":",f"Connected to {device.name}")
+                # get MTU from device
+                await client._backend._acquire_mtu()
+                print(datetime.now(),":",f"Device reported MTU size {client.mtu_size}")
                 client._backend._mtu_size = args.set_mtu_size
                 # self.mtu_size = client.mtu_size
                 self.mtu_size = client.mtu_size
-                print(f"MTU size {client.mtu_size}")
+                print(datetime.now(),":",f"User specified MTU size {client.mtu_size}")
 
                 await self.start_notify(client, CTL_CHARACTERISTIC_UUID)
                 await self.start_notify(client, TX_CHARACTERISTIC_UUID)
-                print(f"Notifications started")
+                print(datetime.now(),":",f"Notifications started")
 
                 #await self.time_set(client)
                 await self.read_diskspace(client)
                 # quit if only asked to read diskspace
                 if (args.list_storage_used_only is True):
-                	print("Listed storage used, now quitting.")
+                	print(datetime.now(),":","Listed storage used, now quitting.")
                 	exit()
                 # get GPS settings if specified
                 if (args.get_settings_from_json is True):
                 	await self.fetch_file(client, 'Setting.json')
-                	print("Pulled GPS settings as Setting.json to PC.")
+                	print(datetime.now(),":","Pulled GPS settings as Setting.json to PC.")
                 # send new GPS settings if specified
                 if (args.change_settings_with_json is True):
                 	await self.send_file(client, 'Setting.json')
-                	print("Sent Settings.json file to GPS to change GPS settings.")
+                	print(datetime.now(),":","Sent Settings.json file to GPS to change GPS settings.")
                 ##return
                 # delete selected files if argument option set
                 if (args.delete_selected_fit_files is not None):
                 	# print notification to stdout
-                	print("Deleting files specified in list provided as  command line argument.")
+                	print(datetime.now(),":","Deleting files specified in list provided as  command line argument.")
                 	# load delete_selected_fit_files list and delete one by one
                 	with open(args.delete_selected_fit_files, 'r') as file:
                 		for line in file:
@@ -490,11 +493,11 @@ class BluetoothFileTransfer:
                 			if file_path.endswith(('.fit','.FIT')):
                 				# strip() removes the trailing newline character (\n)
                 				# indicate status
-                				print("Deleting ",filename_to_delete)
+                				print(datetime.now(),":","Deleting ",filename_to_delete)
                 				# actually delete file with above construct
                 				await self.delete_file(client, filename_to_delete)
                 			else:
-                				print(f"{filename_to_delete} is not a .fit file so it was not deleted.")
+                				print(datetime.now(),":",f"{filename_to_delete} is not a .fit file so it was not deleted.")
                 			
 				
                 # The name of the list may be 'workouts.json' on new devices.
@@ -502,22 +505,22 @@ class BluetoothFileTransfer:
                 fit_files = self.extract_fit_filenames(args.define_trace_list_filename)
                 # if requested, save list of fit files to specified file
                 if (args.save_trace_filelist is True):
-                	print(f"Saving list of trace files on GPS to {args.output_trace_filelist_name}")
+                	print(datetime.now(),":",f"Saving list of trace files on GPS to {args.output_trace_filelist_name}")
                 	with open(args.output_trace_filelist_name, "w") as f:
                 		for fit_file in fit_files:
                 			f.write(f"{fit_file}\n")
                 
                 for fit_file in fit_files:
                     if os.path.exists(fit_file):
-                        print(f'Skip: {fit_file}')
+                        print(datetime.now(),":",f'Skip: {fit_file}')
                     else:
-                        print(f"Retrieving {fit_file}")
+                        print(datetime.now(),":",f"Retrieving {fit_file}")
                         await self.fetch_file(client, fit_file)
 
                 await client.stop_notify(CTL_CHARACTERISTIC_UUID)
                 await client.stop_notify(TX_CHARACTERISTIC_UUID)
             else:
-                print(f"Failed to connect to {device.name}")
+                print(datetime.now(),":",f"Failed to connect to {device.name}")
 
     def extract_fit_filenames(self, file_path):
         '''The list should be either a plain text (e.g. filelist.txt) or a JSON file.
@@ -539,7 +542,7 @@ class BluetoothFileTransfer:
                     for x in json_dict['workouts']:
                         fit_files.add(f'{x[0]}.fit')
         except Exception as e:
-            print(f"Failed to read/parse file: {e}")
+            print(datetime.now(),":",f"Failed to read/parse file: {e}")
 
         return fit_files
 
@@ -552,9 +555,9 @@ class BluetoothFileTransfer:
         with open(filename, "wb") as file:
             size = file.write(mv_file_data[:i+1] if i < -1 else self.data)
         if size != self.data_size:
-            print(f"Error: {size}(file size) != {self.data_size}(spec)")
+            print(datetime.now(),":",f"Error: {size}(file size) != {self.data_size}(spec)")
         else:
-            print(f"Successfully wrote combined data to {filename}")
+            print(datetime.now(),":",f"Successfully wrote combined data to {filename}")
 
     def crc8_xor(self, data):
         '''crc8/xor
