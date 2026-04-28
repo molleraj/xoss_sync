@@ -87,6 +87,8 @@ def parse_args():
 	parser.add_argument("--get_settings_from_json",required=False,default=False,action=argparse.BooleanOptionalAction,help="Get GPS settings by saving Settings.json JSON file to PC.")
 	# set parameters with specified JSON (e.g., Setting.json)
 	parser.add_argument("--change_settings_with_json",required=False,default=False,action=argparse.BooleanOptionalAction,help="Change GPS settings with Settings.json JSON file.")
+	# specify settings json filename
+	parser.add_argument("--settings_json_filename",required=False,default="Setting.json",help="GPS settings JSON if not named Setting.json.")
 	# set MTU size
 	parser.add_argument("--set_mtu_size",required=False,default=247,help="Set maximum transferable unit (MTU) size (default 247).")
 	# define trace list file (e.g., workouts.json)
@@ -474,17 +476,17 @@ class BluetoothFileTransfer:
                 	exit()
                 # get GPS settings if specified
                 if (args.get_settings_from_json is True):
-                	await self.fetch_file(client, 'Setting.json')
-                	print(datetime.now(),":","Pulled GPS settings as Setting.json to PC.")
+                	await self.fetch_file(client, args.settings_json_filename)
+                	print(datetime.now(),":","Pulled GPS settings as",args.settings_json_filename,"to PC.")
                 # send new GPS settings if specified
                 if (args.change_settings_with_json is True):
-                	await self.send_file(client, 'Setting.json')
-                	print(datetime.now(),":","Sent Settings.json file to GPS to change GPS settings.")
+                	await self.send_file(client, args.settings_json_filename)
+                	print(datetime.now(),":","Sent",args.settings_json_filename,"file to GPS to change GPS settings.")
                 ##return
                 # delete selected files if argument option set
                 if (args.delete_selected_fit_files is not None):
                 	# print notification to stdout
-                	print(datetime.now(),":","Deleting files specified in list provided as  command line argument.")
+                	print(datetime.now(),":","Deleting files specified in list provided as command line argument.")
                 	# load delete_selected_fit_files list and delete one by one
                 	with open(args.delete_selected_fit_files, 'r') as file:
                 		for line in file:
