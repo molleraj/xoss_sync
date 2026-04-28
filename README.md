@@ -32,12 +32,12 @@ options:
   --change_settings_with_json, --no-change_settings_with_json
                         Change GPS settings with Settings.json JSON file.
   --set_mtu_size SET_MTU_SIZE
-                        Set maximum transferable unit (MTU) size (default 517).
+                        Set maximum transferable unit (MTU) size (default 247).
   --define_trace_list_filename DEFINE_TRACE_LIST_FILENAME
                         Set name of json containing all traces/workouts (default workouts.json).
 ```
 
-I am planning on adding a helper script for GPS setting configuration (Settings.json) and timestamps for benchmarking in the near future. It would also be really exciting to get DLE working on my XOSS G Gen2.
+I am planning on adding a helper script for GPS setting configuration (Settings.json) in the near future. I have recently added timestamps for transfer rate benchmarking using the Python module ```datetime```. I also would like to benchmark the effect of decreasing minimum and maximum connection intervals with additional libraries like [bleak-retry-connector](https://github.com/Bluetooth-Devices/bleak-retry-connector). I've observed a negotiated connection interval of 48 ms by sniffing the xoss_sync/XOSS G Gen2 connection with ```btmon```. Based on the observed default negotiated MTU (209), DLE should be working on my XOSS G Gen2, but it would be great to test more methods for increasing throughput given compatibility like 2M PHY.
 
 (C) 2024-2025 [ekspla](https://github.com/ekspla/xoss_sync)
 
