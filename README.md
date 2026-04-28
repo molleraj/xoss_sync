@@ -6,11 +6,10 @@ The codes make you free from proprietary XOSS app/software on the cloud; you tak
 
 Below is the usage of my enhanced xoss sync Python script tested on Lubuntu 24.04:
 ```
-usage: enhanced_xoss_sync.py [-h] [--list_storage_used_only | --no-list_storage_used_only] [--delete_selected_fit_files DELETE_SELECTED_FIT_FILES]
-                             [--save_all_files | --no-save_all_files] [--save_trace_filelist | --no-save_trace_filelist]
-                             [--output_trace_filelist_name OUTPUT_TRACE_FILELIST_NAME] [--get_settings_from_json | --no-get_settings_from_json]
-                             [--change_settings_with_json | --no-change_settings_with_json] [--set_mtu_size SET_MTU_SIZE]
-                             [--define_trace_list_filename DEFINE_TRACE_LIST_FILENAME]
+usage: enhanced_xoss_sync.py [-h] [--list_storage_used_only | --no-list_storage_used_only] [--delete_selected_fit_files DELETE_SELECTED_FIT_FILES] [--save_all_files | --no-save_all_files]
+                             [--save_trace_filelist | --no-save_trace_filelist] [--output_trace_filelist_name OUTPUT_TRACE_FILELIST_NAME]
+                             [--get_settings_from_json | --no-get_settings_from_json] [--change_settings_with_json | --no-change_settings_with_json]
+                             [--settings_json_filename SETTINGS_JSON_FILENAME] [--set_mtu_size SET_MTU_SIZE] [--define_trace_list_filename DEFINE_TRACE_LIST_FILENAME]
 
 Set parameters for XOSS bike GPS sync script (e.g., saving new files or deleting files specified in list).
 
@@ -19,8 +18,8 @@ options:
   --list_storage_used_only, --no-list_storage_used_only
                         List GPS storage used and exit if specified (default false).
   --delete_selected_fit_files DELETE_SELECTED_FIT_FILES
-                        Delete fit files from GPS in list specified by this argument. Filenames not ending with .fit or .FIT are ignored for safety
-                        (e.g., to not delete workouts.json or Setting.json).
+                        Delete fit files from GPS in list specified by this argument. Filenames not ending with .fit or .FIT are ignored for safety (e.g., to not delete workouts.json or
+                        Setting.json).
   --save_all_files, --no-save_all_files
                         Sync all files on GPS, except for those confirmed to already have been saved (default true).
   --save_trace_filelist, --no-save_trace_filelist
@@ -31,6 +30,8 @@ options:
                         Get GPS settings by saving Settings.json JSON file to PC.
   --change_settings_with_json, --no-change_settings_with_json
                         Change GPS settings with Settings.json JSON file.
+  --settings_json_filename SETTINGS_JSON_FILENAME
+                        GPS settings JSON if not named Setting.json.
   --set_mtu_size SET_MTU_SIZE
                         Set maximum transferable unit (MTU) size (default 247).
   --define_trace_list_filename DEFINE_TRACE_LIST_FILENAME
