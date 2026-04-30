@@ -9,7 +9,9 @@ Below is the usage of my enhanced xoss sync Python script tested on Lubuntu 24.0
 usage: enhanced_xoss_sync.py [-h] [--list_storage_used_only | --no-list_storage_used_only] [--delete_selected_fit_files DELETE_SELECTED_FIT_FILES] [--save_all_files | --no-save_all_files]
                              [--save_trace_filelist | --no-save_trace_filelist] [--output_trace_filelist_name OUTPUT_TRACE_FILELIST_NAME]
                              [--get_settings_from_json | --no-get_settings_from_json] [--change_settings_with_json | --no-change_settings_with_json]
-                             [--settings_json_filename SETTINGS_JSON_FILENAME] [--set_mtu_size SET_MTU_SIZE] [--define_trace_list_filename DEFINE_TRACE_LIST_FILENAME]
+                             [--settings_json_filename SETTINGS_JSON_FILENAME] [--get_layout_from_json | --no-get_layout_from_json]
+                             [--change_layout_with_json | --no-change_layout_with_json] [--layout_json_filename LAYOUT_JSON_FILENAME] [--set_mtu_size SET_MTU_SIZE]
+                             [--define_trace_list_filename DEFINE_TRACE_LIST_FILENAME]
 
 Set parameters for XOSS bike GPS sync script (e.g., saving new files or deleting files specified in list).
 
@@ -32,6 +34,12 @@ options:
                         Change GPS settings with Settings.json JSON file.
   --settings_json_filename SETTINGS_JSON_FILENAME
                         GPS settings JSON if not named Setting.json.
+  --get_layout_from_json, --no-get_layout_from_json
+                        Get GPS data layout by saving Layout.json JSON file to PC.
+  --change_layout_with_json, --no-change_layout_with_json
+                        Change GPS data layout with Layout.json JSON file.
+  --layout_json_filename LAYOUT_JSON_FILENAME
+                        GPS data layout JSON if not named Layout.json.
   --set_mtu_size SET_MTU_SIZE
                         Set maximum transferable unit (MTU) size (default 247).
   --define_trace_list_filename DEFINE_TRACE_LIST_FILENAME
