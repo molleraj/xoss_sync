@@ -90,6 +90,13 @@ def parse_args():
 	# specify settings json filename
 	parser.add_argument("--settings_json_filename",required=False,default="Setting.json",help="GPS settings JSON if not named Setting.json.")
 	# set MTU size
+	# get data layout from specified JSON (e.g., Layout.json)
+	parser.add_argument("--get_layout_from_json",required=False,default=False,action=argparse.BooleanOptionalAction,help="Get GPS data layout by saving Layout.json JSON file to PC.")
+	# set parameters with specified JSON (e.g., Layout.json)
+	parser.add_argument("--change_layout_with_json",required=False,default=False,action=argparse.BooleanOptionalAction,help="Change GPS data layout with Layout.json JSON file.")
+	# specify settings json filename
+	parser.add_argument("--layout_json_filename",required=False,default="Layout.json",help="GPS data layout JSON if not named Layout.json.")
+	# set MTU size
 	parser.add_argument("--set_mtu_size",required=False,default=247,help="Set maximum transferable unit (MTU) size (default 247).")
 	# define trace list file (e.g., workouts.json)
 	parser.add_argument("--define_trace_list_filename",required=False,default="workouts.json",help="Set name of json containing all traces/workouts (default workouts.json).")
@@ -482,6 +489,14 @@ class BluetoothFileTransfer:
                 if (args.change_settings_with_json is True):
                 	await self.send_file(client, args.settings_json_filename)
                 	print(datetime.now(),":","Sent",args.settings_json_filename,"file to GPS to change GPS settings.")
+                # get data layout if specified
+                if (args.get_layout_from_json is True):
+                	await self.fetch_file(client, args.layout_json_filename)
+                	print(datetime.now(),":","Pulled GPS data layout as",args.layout_json_filename,"to PC.")
+                # send new data layout if specified
+                if (args.change_layout_with_json is True):
+                	await self.send_file(client, args.layout_json_filename)
+                	print(datetime.now(),":","Sent",args.layout_json_filename,"file to GPS to change GPS data layout.")
                 ##return
                 # delete selected files if argument option set
                 if (args.delete_selected_fit_files is not None):
